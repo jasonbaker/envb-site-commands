@@ -1,4 +1,4 @@
-import sys
+import os
 from ConfigParser import SafeConfigParser
 from nose.config import Config
 from nose.core import TestProgram, collector
@@ -27,16 +27,21 @@ class NoseTestCommand(Command):
                     writer.write(config_file)
                 finally:
                     config_file.close()
-                options = ['{BINDIR}/nosetests', '-c %s' % config_file.name]
-                options.extend(args.nose_arguments)
-                sh(' '.join(options), cwd=parcel['dir'])
+                try:
+                    options = ['{BINDIR}/nosetests', '-c %s' % config_file.name]
+                    options.extend(args.nose_arguments)
+                    sh(' '.join(options), cwd=parcel['dir'])
+                finally:
+                    os.remove(config_file.name)
 
     def get_arg_parser(self):
         parser = self.get_base_arg_parser()
         parser.add_argument('nose_arguments',
                             help='arguments to pass to nose',
                             nargs='*')
-        
+        parser.add_argument('-k', '--keep-config-file',
+                            action='store_true',
+                            help='Keep the temporary config file when done')
         return parser
 
     def nose_has_option(self, optname):
