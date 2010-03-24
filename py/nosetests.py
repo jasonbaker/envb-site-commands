@@ -5,7 +5,7 @@ from nose.core import TestProgram, collector
 import tempfile
 
 from envbuilder.command import Command
-from envbuilder.sh import sh
+from envbuilder.sh import sh, notify
 from envbuilder.args import Arguments
 
 class NoseTestCommand(Command):
@@ -32,7 +32,11 @@ class NoseTestCommand(Command):
                     options.extend(args.nose_arguments)
                     sh(' '.join(options), cwd=parcel['dir'])
                 finally:
-                    os.remove(config_file.name)
+                    if args.keep_config_file:
+                        notify('Keeping temporary config file')
+                    else:
+                        os.remove(config_file.name)
+                    
 
     def get_arg_parser(self):
         parser = self.get_base_arg_parser()
