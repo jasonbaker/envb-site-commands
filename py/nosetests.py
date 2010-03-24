@@ -23,7 +23,10 @@ class NoseTestCommand(Command):
                     if self.nose_has_option(key):
                         writer.set('nosetests', key, value)
                 config_file = tempfile.NamedTemporaryFile(delete=False)
-                writer.write(config_file)
+                try:
+                    writer.write(config_file)
+                finally:
+                    config_file.close()
                 options = ['{BINDIR}/nosetests', '-c %s' % config_file.name]
                 options.extend(args.nose_arguments)
                 sh(' '.join(options), cwd=parcel['dir'])
