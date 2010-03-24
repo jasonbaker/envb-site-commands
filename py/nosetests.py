@@ -15,17 +15,18 @@ class NoseTestCommand(Command):
     name='py.nose'
     def run(self, args, config):
         for parcel in config.parcels:
-            nose_opts=parcel.get('nose', {})
-            writer = SafeConfigParser()
-            writer.add_section('nosetests')
-            for key, value in nose_opts.iteritems():
-                if self.nose_has_option(key):
-                    writer.set('nosetests', key, value)
-            config_file = tempfile.NamedTemporaryFile(delete=False)
-            writer.write(config_file)
-            options = ['{BINDIR}/nosetests', '-c %s' % config_file.name]
-            options.extend(Arguments().arguments)
-            sh(' '.join(options), cwd=parcel['dir'])
+            if not parcel.get('no-nose', False):
+                nose_opts=parcel.get('nose', {})
+                writer = SafeConfigParser()
+                writer.add_section('nosetests')
+                for key, value in nose_opts.iteritems():
+                    if self.nose_has_option(key):
+                        writer.set('nosetests', key, value)
+                config_file = tempfile.NamedTemporaryFile(delete=False)
+                writer.write(config_file)
+                options = ['{BINDIR}/nosetests', '-c %s' % config_file.name]
+                options.extend(args.nose_arguments)
+                sh(' '.join(options), cwd=parcel['dir'])
 
     def get_arg_parser(self):
         parser = self.get_base_arg_parser()
