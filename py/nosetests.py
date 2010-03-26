@@ -1,7 +1,6 @@
 import os
 from ConfigParser import SafeConfigParser
 from nose.config import Config
-from nose.core import TestProgram, collector
 import tempfile
 
 from envbuilder.command import Command
