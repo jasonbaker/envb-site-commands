@@ -5,7 +5,6 @@ import tempfile
 
 from envbuilder.command import Command
 from envbuilder.sh import sh, notify
-from envbuilder.args import Arguments
 
 class NoseTestCommand(Command):
     """
