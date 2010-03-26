@@ -14,6 +14,7 @@ class NoseTestCommand(Command):
     """
     name='py.nose'
     def run(self, args, config):
+        unsuccessful = []
         for parcel in config.parcels:
             if not parcel.get('no-nose', False):
                 nose_opts=parcel.get('nose', {})
@@ -27,16 +28,29 @@ class NoseTestCommand(Command):
                     writer.write(config_file)
                 finally:
                     config_file.close()
-                try:
+
                     options = ['{BINDIR}/nosetests', '-c %s' % config_file.name]
                     options.extend(args.nose_arguments)
+                try:
                     sh(' '.join(options), cwd=parcel['dir'])
+                except SystemExit, e:
+                    unsuccessful.append(parcel['name'])
+                    notify('Continuing to next parcel')
                 finally:
                     if args.keep_config_file:
                         notify('Keeping temporary config file')
                     else:
                         os.remove(config_file.name)
+        self.report(unsuccessful)
                     
+    def report(self, unsuccessful):
+        if unsuccessful:
+            notify('The following parcels had failed tests:')
+            for name in unsuccessful:
+                notify(name)
+        else:
+            notify('All parcels successful')
+            
 
     def get_arg_parser(self):
         parser = self.get_base_arg_parser()
