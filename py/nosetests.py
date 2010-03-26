@@ -1,16 +1,15 @@
-import os
+import os, tempfile
 from ConfigParser import SafeConfigParser
-from nose.config import Config
-import tempfile
 
+from envbuilder.sh import sh, notify, terminate
 from envbuilder.command import Command
-from envbuilder.sh import sh, notify
 
 class NoseTestCommand(Command):
     """
     Run nose tests (experimental).
     """
     name='py.nose'
+    py_dependencies=['nose>=0.11.3']
     def run(self, args, config):
         unsuccessful = []
         for parcel in config.parcels:
@@ -61,6 +60,7 @@ class NoseTestCommand(Command):
         return parser
 
     def nose_has_option(self, optname):
+        from nose.config import Config
         optname = '--' + optname
         nose_config = Config()
         parser = nose_config.getParser()
